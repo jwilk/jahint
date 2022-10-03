@@ -1,0 +1,41 @@
+#!/bin/sh
+
+# Copyright © 2017-2022 Jakub Wilk <jwilk@jwilk.net>
+# SPDX-License-Identifier: MIT
+
+set -e -u
+
+prog=jahint
+hintdir=${XDG_DATA_HOME:-"$HOME/.local/share"}/"$prog"
+
+lshints()
+{
+    ls "$hintdir/" | paste -s | tr '\t' ' '
+}
+
+usage()
+{
+    printf 'Usage: hint NAME\n'
+    printf 'Avaiable hints: '
+    lshints
+}
+
+if [ $# -ne 1 ]
+then
+    usage >&2
+    exit 1
+fi
+if [ "$1" = '-h' ] || [ "$1" = '--help' ]
+then
+    usage
+    exit 0
+fi
+if ! cat "$hintdir/$1" > /dev/null
+then
+    printf 'Avaiable hints: ' >&2
+    lshints >&2
+    exit 1
+fi
+grep -v '^[.][.] v''im:' "$hintdir/$1" | less -FX
+
+# vim:ts=4 sts=4 sw=4 et
